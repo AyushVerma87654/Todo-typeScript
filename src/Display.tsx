@@ -1,25 +1,40 @@
 import React, { FC } from "react";
-import { ImCross } from "react-icons/im";
+import { RiDeleteBin2Fill } from "react-icons/ri";
 
-type fun = (data: string) => void;
+type fun = (data: number) => void;
 
 type DisplayProps = {
+  id: number;
   data: string;
-  onAdd: fun;
-  handleRemoveClick: fun;
+  show: boolean;
+  onAdd: (data: number) => void;
+  handleRemoveClick: (data: number) => void;
   checked?: boolean;
   readOnly?: boolean;
 };
 
 const Display: FC<DisplayProps> = ({
   data,
+  id,
   onAdd,
+  show,
   handleRemoveClick,
   checked,
   readOnly,
 }) => {
+  let border = "border-4 border-blue-500";
+  if (show) {
+    border = "border-4 border-black";
+  }
+  let myFunction = () => {};
+  if (show) {
+    myFunction = () => handleRemoveClick(id);
+  }
   return (
-    <div className="flex justify-between my-2 items-center">
+    <div
+      className={"flex justify-between my-2 items-center " + border}
+      onClick={myFunction}
+    >
       <div className="flex items-center">
         <input
           readOnly={readOnly}
@@ -27,17 +42,9 @@ const Display: FC<DisplayProps> = ({
           onChange={() => {}}
           className="-mb-1"
           type="checkbox"
-          onClick={() => onAdd(data)}
+          onClick={() => onAdd(id)}
         />
         <p>{data}</p>
-      </div>
-      <div>
-        {checked && (
-          <ImCross
-            className="w-2 text-end"
-            onClick={() => handleRemoveClick(data)}
-          />
-        )}
       </div>
     </div>
   );

@@ -21,7 +21,6 @@ const AddTodo: FC<AddTodoProps> = ({ addTodo }) => {
   function handleSaveButtonClick() {
     if (input != "") {
       addTodo(input);
-      setClick(!click);
       setInput("");
     }
   }

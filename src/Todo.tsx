@@ -1,68 +1,89 @@
 import React, { useState } from "react";
 import AddTodo from "./AddTodo";
 import Display from "./Display";
+import { MdDelete } from "react-icons/md";
+import { list, todo } from "./models";
 
 function Todo() {
-  const todoStorage = localStorage.getItem("Todo") || "[]";
-  const doneStorage = localStorage.getItem("Done") || "[]";
-  const td: string[] = JSON.parse(todoStorage);
-  const dd: string[] = JSON.parse(doneStorage);
-  const [todo, setTodo] = useState(td);
-  const [done, setDone] = useState(dd);
+  const storage = localStorage.getItem("List") || "[]";
+  const td: list = JSON.parse(storage);
+  const [list, setList] = useState(td);
+  const [show, setShow] = useState(false);
 
-  const onAddFromTodo = (data: string) => {
-    updatedDoneObject(data);
-    const newTodo = [...todo];
-    const newTodoo = newTodo.filter((item: string) => item != data);
-    updateTodo(newTodoo);
+  const todos = list.filter((todo) => todo.status == false);
+  const done = list.filter((todo) => todo.status == true);
+
+  const onAddFromTodo = (id: number) => {
+    const newList = list.filter((todo: todo) => {
+      if (todo.id == id) {
+        todo.status = true;
+        return todo;
+      } else {
+        return todo;
+      }
+    });
+    updateList(newList);
   };
 
-  const updatedTodoObject = (data: string) => updateTodo([...todo, data]);
-
-  const updateTodo = (data: string[]) => {
-    setTodo(data);
+  const updateList = (data: list) => {
+    setList(data);
     const todoString = JSON.stringify(data);
-    localStorage.setItem("Todo", todoString);
+    localStorage.setItem("List", todoString);
   };
 
   const addTodo = (data: string) => {
-    const newTodo = [...todo, data];
-    updateTodo(newTodo);
+    const idStorage = localStorage.getItem("id") || "1";
+    const id: number = JSON.parse(idStorage);
+    const newTodo = { title: data, id: id, status: false };
+    const newList = [...list, newTodo];
+    localStorage.setItem("id", JSON.stringify(id + 1));
+    updateList(newList);
   };
 
-  const updatedDoneObject = (data: string) => updateDone([...done, data]);
-
-  const onAddFromDone = (data: string) => {
-    updatedTodoObject(data);
-    const newDone = [...done];
-    const newDonee = newDone.filter((item) => item != data);
-    updateDone(newDonee);
+  const onAddFromDone = (id: number) => {
+    const newList = list.filter((todo: todo) => {
+      if (todo.id == id) {
+        todo.status = false;
+        return todo;
+      } else {
+        return todo;
+      }
+    });
+    updateList(newList);
   };
 
-  const updateDone = (data: string[]) => {
-    setDone(data);
-    const doneString = JSON.stringify(data);
-    localStorage.setItem("Done", doneString);
+  const handleRemoveClick = (id: number) => {
+    const newList = list.filter((todo) => todo.id != id);
+    updateList(newList);
   };
 
-  const handleRemoveClick = (data: string) => removeDone(data);
-
-  const removeDone = (data: string) => {
-    const newDone = [...done];
-    const newDonee = newDone.filter((item) => item != data);
-    updateDone(newDonee);
-  };
+  let color = "text-blue-700";
+  if (show) {
+    color = "text-green-700";
+  }
 
   return (
-    <div className="bg-red-500 p-10">
-      <h1 className="text-blue-700 font-bold mb-10 text-3xl">My Todo App</h1>
+    <div className="bg-red-500 p-6 sm:p-10 h-screen overflow-y-scroll">
+      <div className="flex items-center justify-between">
+        <h1 className="text-blue-700 font-bold mb-10 text-3xl">My Todo's</h1>
+        <div>
+          {list.length > 0 && (
+            <MdDelete
+              className={"text-3xl mb-9 " + color}
+              onClick={() => setShow(!show)}
+            />
+          )}
+        </div>
+      </div>
       <h2 className="my-4">Things to be done</h2>
       <div className="my-4">
-        {todo &&
-          todo.map((item: string) => (
+        {todos &&
+          todos.map((item) => (
             <Display
-              key={item}
-              data={item}
+              id={item.id}
+              show={show}
+              key={item.id}
+              data={item.title}
               onAdd={onAddFromTodo}
               handleRemoveClick={handleRemoveClick}
             />
@@ -72,11 +93,13 @@ function Todo() {
       <h2 className="my-4">Things done</h2>
       <div className="my-4">
         {done &&
-          done.map((item: string) => (
+          done.map((done: todo) => (
             <Display
+              show={show}
+              id={done.id}
               handleRemoveClick={handleRemoveClick}
-              key={item}
-              data={item}
+              key={done.id}
+              data={done.title}
               onAdd={onAddFromDone}
               checked={true}
             />

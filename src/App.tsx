@@ -3,7 +3,7 @@ import Todo from "./Todo";
 
 function App() {
   return (
-    <div>
+    <div className="h-screen">
       <Todo />
     </div>
   );
